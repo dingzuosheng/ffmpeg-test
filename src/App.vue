@@ -3,11 +3,11 @@
     <video
       id="video"
       controls
-      src="./assets/video.webm"
+      src="../public/video.webm"
       width="640"
       height="480"
     ></video>
-    <video id="videocutRef" width="640" height="480"></video>
+    <video id="videocutRef" width="640" height="480" controls></video>
     <button @click="cut()">cut</button>
   </div>
 </template>
@@ -20,32 +20,42 @@ const ffmpeg = createFFmpeg({
 });
 export default {
   name: "App",
-  methode: {
+  methods: {
     async cut() {
       await ffmpeg.load();
+      console.log('load ist gestartet');
       ffmpeg.FS(
         "writeFile",
-        "watermark.png",
-        await fetchFile("./assets/watermark.png")
+        "watermark.PNG",
+        await fetchFile("./watermark.PNG")
+        // await fetchFile("/c/Materna-Projekt2/ffmpeg-test/src/assets/watermark.PNG")
+
       );
-      ffmpeg.FS("writeFile", "video.webm", fetchFile("./assets/video.webm"));
+      console.log('writeFile von watermark.PNG ist gestartet');
+      ffmpeg.FS("writeFile", "video.webm", await fetchFile("./video.webm"));
+      console.log('writeFile von video.webm ist gestartet');
       await ffmpeg.run(
         "-i",
         "video.webm",
         "-i",
-        "watermark.png",
+        "watermark.PNG",
         "-filter_complex",
         "overlay=x=65:y=355",
         "result.webm"
       );
-      const data = ffmpeg.FS("readFile", "result.webm");
-      const video = document.getElementById("videoCutRef");
+      console.log('run ist gestartet');
+      const data = ffmpeg.FS('readFile', 'result.webm');
+      console.log('readFile ist gestartet');
+      const video = document.getElementById("videocutRef");
+      console.log(data)
+      console.log(data.buffer)
       video.src = URL.createObjectURL(
-        new Blob([data.buffer], "result.webm", {
+        new Blob([data.buffer],{
           type: "video/webm",
         })
       );
     },
+    
   },
 };
 </script>
